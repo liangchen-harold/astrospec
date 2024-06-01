@@ -11,7 +11,7 @@
 from .video_reader import video_reader
 from .spectrum import reduce_mean, fit_line_with_poly, frame_to_line, reconstruct
 from .shape_correction import detect_edge_points, filter_out_invalid_points, fit_ellipse, warp_frame
-from .light_correction import light_correction
+from .light_correction import correct_light
 from .postproc import normalize, color_map
 from .utils import print
 import cv2
@@ -19,7 +19,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from einops import rearrange, reduce, repeat
 
-def raw_file_to_file(file, output_file, raw = False, shifts = [0], correct_light = 1, normalize_brightness = 1.0, color_map_name = 'orange-enhanced', verbose = 0):
+def raw_file_to_file(file, output_file, raw = False, shifts = [0], correct_light_axis = 2, normalize_brightness = 1.0, color_map_name = 'orange-enhanced', verbose = 0):
     """
     raw_file_to_file 从ser文件重建图像，输出重建图像文件
     raw_file_to_file reconstruct image from raw video (ser file), write reconstructed, normalized, color mapped image to file(s)
@@ -36,7 +36,7 @@ def raw_file_to_file(file, output_file, raw = False, shifts = [0], correct_light
     :param verbose: 0~3，log information level
     :return: None
     """ 
-    imgs = raw_file_to_raw_image(file, shifts, correct_light, verbose)
+    imgs = raw_file_to_raw_image(file, shifts, correct_light_axis, verbose)
 
     for i,img in enumerate(imgs):
         _file = output_file.format(i=i, shift=shifts[i])
@@ -52,7 +52,7 @@ def raw_file_to_file(file, output_file, raw = False, shifts = [0], correct_light
 
             cv2.imwrite(_file, img)
 
-def raw_file_to_image(file, shifts = [0], correct_light = 1, normalize_brightness = 1.0, color_map_name = 'orange-enhanced', verbose = 0):
+def raw_file_to_image(file, shifts = [0], correct_light_axis = 2, normalize_brightness = 1.0, color_map_name = 'orange-enhanced', verbose = 0):
     """
     raw_file_to_image 从ser文件重建图像，返回色彩映射后的重建图像，np.array(uint8)
     raw_file_to_image reconstruct image from raw video (ser file), return the reconstructed, normalized, color mapped image, np.array(uint8)
@@ -68,12 +68,12 @@ def raw_file_to_image(file, shifts = [0], correct_light = 1, normalize_brightnes
     :return: 色彩映射后的重建图像，np.array(uint8)
     :return: reconstructed, normalized, color mapped image, np.array(uint8)
     """ 
-    imgs = raw_file_to_raw_image(file, shifts, correct_light, verbose)
+    imgs = raw_file_to_raw_image(file, shifts, correct_light_axis, verbose)
     imgs = [normalize(img, brightness=normalize_brightness, verbose=verbose).astype(int) for img in imgs]
     imgs = [color_map(img, color_map_name) for img in imgs]
     return imgs
 
-def raw_file_to_raw_image(file, shifts = [0], correct_light = 1, verbose = 0, return_details = False):
+def raw_file_to_raw_image(file, shifts = [0], correct_light_axis = 2, verbose = 0, return_details = False):
     """
     raw_file_to_raw_image 从ser文件重建图像，返回原始值空间的重建图像，np.array(float64)
     raw_file_to_raw_image reconstruct image from raw video (ser file), return the reconstructed image, np.array(float64)
@@ -132,8 +132,8 @@ def raw_file_to_raw_image(file, shifts = [0], correct_light = 1, verbose = 0, re
         img = warp_frame(ellipse, img, sz)
         
         # 杂散光矫正
-        if correct_light > 0:
-            img = light_correction(img, correct_light=correct_light, verbose=verbose)
+        if correct_light_axis > 0:
+            img = correct_light(img, n_axis=correct_light_axis, verbose=verbose)
         
         ret.append(img)
     

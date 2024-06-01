@@ -8,6 +8,7 @@ from einops import rearrange, reduce, repeat
 import numpy as np
 from numpy.polynomial.polynomial import polyval
 import matplotlib.pyplot as plt
+from .utils import print
 
 def find_center(arr):
     ret = []
@@ -69,11 +70,7 @@ def rotate(img, angle):
     img = cv2.warpAffine(img, M[:2,:], (dx, dy))
     return img
 
-def light_correction(img, brd_percentage=0.05, correct_light=1, verbose=0):
-    img = img.astype(float)
-    # 忽略黑边（没有扫描到的地方）
-    img[img<1] = np.nan
-
+def correct_one_axis(img, brd_percentage=0.05, verbose=0):
     h = img.shape[0]
     w = img.shape[1]
     brd_height = int(h * brd_percentage)
@@ -159,5 +156,25 @@ def light_correction(img, brd_percentage=0.05, correct_light=1, verbose=0):
         plt.show()
 
     _img = img - plane
-    _img = np.nan_to_num(_img, nan=bg_level)
-    return _img
+    return _img, bg_level
+
+def correct_light(img, brd_percentage=0.05, n_axis=2, verbose=0):
+    img = img.astype(float)
+    # 忽略黑边（没有扫描到的地方）
+    img[img<1] = np.nan
+    bg_level = 0
+
+    try:
+        img, bg_level = correct_one_axis(img, brd_percentage, verbose)
+    except Exception as e:
+        print(e)
+
+    if n_axis == 2:
+        try:
+            img, bg_level = correct_one_axis(img.T, brd_percentage, verbose)
+            img = img.T
+        except Exception as e:
+            print(e)
+
+    img = np.nan_to_num(img, nan=bg_level)
+    return img

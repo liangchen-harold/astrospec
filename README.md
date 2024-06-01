@@ -8,6 +8,7 @@ This project is used to reconstruct image from raw video captured by the [spectr
 - Clear API interface
 - Algorithm with sub-pixel interpolation for wavelength correction 
 - Additional features such as color mapping
+- Advanced algorithm to remove stray light ([view comparison](#Stray-light-remove))
 
 ## Installation
 
@@ -20,11 +21,14 @@ pip install astrospec
 ### For end users
 
 ```bash
+# single file input, generate 16-bit png files at the sub-folder named "output/img", no normalization, no color mapping
+ascli -i "<SER file>" --raw
+
 # single file input, generate png files at the sub-folder named "output/img"
-ascli -i "<SER file>" [-c color_map_name]
+ascli -i "<SER file>" [-c color_map_name] [-nb brightness(default=1)]
 
 # process all .ser files in the folder, generate png files at the sub-folder named "output/img"
-ascli -f "<folder>" [-c color_map_name]
+ascli -f "<folder>" [-c color_map_name] [-nb brightness(default=1)]
 
 # color_map_name（optional）:
 # - orange-enhanced (default)
@@ -103,6 +107,10 @@ def raw_file_to_file(file, output_file, shifts = [0], color_map_name = 'orange-e
     :return: None
     """ 
 ```
+
+## Stray light remove
+![correct stray light](docs/2024-05-28_1306.gif)
+![correct stray light](docs/2024-05-28-0549_3.gif)
 
 ## Reference
 1. [SolEx](http://www.astrosurf.com/solex/sol-ex-presentation-en.html) - The design of a DIY spectroheliograph by Valerie Desnoux, with very detailed introduction, which is worth reading carefully.

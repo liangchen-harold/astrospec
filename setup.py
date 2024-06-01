@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="astrospec",
-    version="0.1.0",
+    version="0.2.0",
     author="liangchen",
     author_email="lcpcsky@gmail.com",
     description="astronomy spectroheliograph data processing tools",

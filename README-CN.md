@@ -6,6 +6,7 @@
 - 清晰的API接口
 - 基于亚像素插值的波长校正算法
 - 附加功能，如颜色映射
+- 通过算法拟合并去除杂散光 ([查看对比](#杂散光矫正算法效果))
 
 ## 安装
 
@@ -18,11 +19,14 @@ pip install astrospec
 ### 最终用户（如果你只是想重建图片，不想研究算法和编程）
 
 ```bash
+# 处理单个文件，在"output/img"子目录中生成16位原始png文件（未经归一化和色彩映射）
+ascli -i "<SER file>" --raw
+
 # 处理单个文件，在"output/img"子目录中生成png图片文件
-ascli -i "<SER文件路径>" [-c color_map_name]
+ascli -i "<SER文件路径>" [-c color_map_name] [-nb brightness(default=1)]
 
 # 处理文件夹，在"output/img"子目录中生成png图片文件
-ascli -f "<文件夹路径>" [-c color_map_name]
+ascli -f "<文件夹路径>" [-c color_map_name] [-nb brightness(default=1)]
 
 # 色彩映射 color_map_name (可选):
 # - orange-enhanced (默认)
@@ -101,6 +105,10 @@ def raw_file_to_file(file, output_file, shifts = [0], color_map_name = 'orange-e
     :return: None
     """ 
 ```
+
+## 杂散光矫正算法效果
+![correct stray light](docs/2024-05-28_1306.gif)
+![correct stray light](docs/2024-05-28-0549_3.gif)
 
 ## 参考
 1. [SolEx](http://www.astrosurf.com/solex/sol-ex-presentation-en.html) - 法国友人Valerie Desnoux的开源光谱仪，提供了3D打印文件，另外还有非常详细的介绍，值得细读
