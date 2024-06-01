@@ -71,7 +71,7 @@ def cross_points(arr, thd):
         ret.append(idx + (thd-a)/(b-a))
     return ret
 
-def detect_edge_points(reader, fit, shifts=[10]):
+def detect_edge_points(reader, fit, shifts=[10], verbose=0):
     lines = []
     raw_lines = []
     line_maxval = []
@@ -84,14 +84,16 @@ def detect_edge_points(reader, fit, shifts=[10]):
         raw_lines.append(line)
         # 变化最快
         # line = line[:-1] - line[1:]
-        # plt.plot(line, color='r')
-        # plt.show()
         # lines.append([np.argmin(line), np.argmax(line)])
         # 穿过1/4最大强度
-        thd_val = np.max(line)
+        _min = np.min(line)
+        thd_val = (np.max(line) - _min)
         line_maxval.append(thd_val)
-        thd_val = thd_val/4
+        thd_val = _min + thd_val/4
         lines.append(cross_points(line, thd_val))
+        if verbose > 3 and (i%50) == 0:
+            plt.plot(line, color='r')
+            plt.show()
 
     line_maxval = np.array(line_maxval)
     lines = np.array(lines)
@@ -117,7 +119,7 @@ def filter_out_invalid_points(x, thd):
 
     return x
 
-def fit_ellipse(edge_points, verbose=0):
+def fit_ellipse(edge_points, raw_lines, verbose=0):
     points = []
     for x, ys in enumerate(edge_points):
         for y in ys:
@@ -135,9 +137,10 @@ def fit_ellipse(edge_points, verbose=0):
     if verbose > 1:
         # fig = plt.figure(figsize=(6, 6))
         ax = plt.subplot()
-        # ax.axis('equal')
-        # ax.plot(X1, X2, 'ro', zorder=1)
-        ax.plot(edge_points)
+        print(raw_lines.shape)
+        ax.imshow(raw_lines.T)
+        
+        ax.scatter(points[:,0], points[:,1], marker='x', c='r')
         ellipse = Ellipse(
             xy=center, width=2*width, height=2*height, angle=phi,
             edgecolor='b', fc='None', lw=1, label='Fit', zorder=2

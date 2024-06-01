@@ -38,11 +38,11 @@ ascli -f "<folder>" [-c color_map_name]
 #### example 1
 
 ```py
-from astrospec import raw_file_to_raw_image, raw_file_to_image, raw_file_to_file
+import astrospec as ass
 import matplotlib.pyplot as plt
 
-img = raw_file_to_image('input.ser')
-plt.imshow(img)
+img = ass.raw_file_to_image('input.ser')
+plt.imshow(img[0])
 plt.show()
 ```
 ![2024-05-18 Hα solar image](docs/2024-05-18-070400_Ha.jpg)
@@ -50,11 +50,11 @@ plt.show()
 #### example 2
 
 ```py
-from astrospec import raw_file_to_raw_image, raw_file_to_image, raw_file_to_file
+import astrospec as ass
 import matplotlib.pyplot as plt
 
-img = raw_file_to_image('input.ser', color_map_name='linear')
-plt.imshow(img, cmap='gray')
+img = ass.raw_file_to_image('input.ser', color_map_name='linear')
+plt.imshow(img[0], cmap='gray')
 plt.show()
 ```
 ![2024-05-18 Hα solar image](docs/2024-05-18-070400_Ha_linear.jpg)

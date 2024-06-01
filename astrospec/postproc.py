@@ -26,7 +26,7 @@ def color_map(img, map_name = 'orange-enhanced', verbose = 0):
     # faster
     return np.array([[_map[item] for item in row] for row in img])
 
-def normalize(img, verbose=0):
+def normalize(img, brightness=1.0, verbose=0):
     # 方法一：主体部分亮度均衡
     n, e = np.histogram(img, bins=100)
     if verbose > 1:
@@ -42,7 +42,7 @@ def normalize(img, verbose=0):
     med_val = np.mean(img[(img>med_val_a) & (img<med_val_b)])
     # print(med_idx[:3], idx_a, idx_b)
     # print(med_val)
-    img = np.clip(img/med_val*152, 0, 255)
+    img = np.clip(img/med_val*152*brightness, 0, 255)
 
     # 方法二：按最亮的0.001部分归一化
     # val_max = np.quantile(img, 0.999) * 1.2

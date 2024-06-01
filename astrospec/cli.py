@@ -44,7 +44,8 @@ def main():
     parser.add_argument('-o', '--output_folder', help='Output folder(relative to the input file)', default='output/img')
     parser.add_argument('-ov', '--output_video', help='Whether to generate video', action='store_true', default=False)
     parser.add_argument('-c', '--color_map_name', help='Color map', default='orange-enhanced')
-    parser.add_argument('-v', '--verbose', help='verbose', default=0)
+    parser.add_argument('-v', '--verbose', help='verbose', type=int, default=0)
+    parser.add_argument('-nb', '--normalize_brightness', help='Relative target brightness', type=float, default=1)
     args = parser.parse_args()
     print(vars(args))
 

@@ -15,9 +15,10 @@ from .postproc import normalize, color_map
 from .utils import print
 import cv2
 import numpy as np
+import matplotlib.pyplot as plt
 from einops import rearrange, reduce, repeat
 
-def raw_file_to_file(file, output_file, shifts = [0], color_map_name = 'orange-enhanced', verbose = 0):
+def raw_file_to_file(file, output_file, shifts = [0], normalize_brightness = 1.0, color_map_name = 'orange-enhanced', verbose = 0):
     """
     raw_file_to_file 从ser文件重建图像，输出重建图像文件
     raw_file_to_file reconstruct image from raw video (ser file), write reconstructed, normalized, color mapped image to file(s)
@@ -37,7 +38,7 @@ def raw_file_to_file(file, output_file, shifts = [0], color_map_name = 'orange-e
     imgs = raw_file_to_raw_image(file, shifts, verbose)
 
     for i,img in enumerate(imgs):
-        img = normalize(img).astype(int)
+        img = normalize(img, brightness=normalize_brightness, verbose=verbose).astype(int)
         img = color_map(img, color_map_name)
         if len(img.shape) == 3:
             img = img[:,:,::-1]
@@ -47,7 +48,7 @@ def raw_file_to_file(file, output_file, shifts = [0], color_map_name = 'orange-e
             print(f'write to {_file} (i={i}, shift={shifts[i]})')
         cv2.imwrite(_file, img)
 
-def raw_file_to_image(file, shifts = [0], color_map_name = 'orange-enhanced', verbose = 0):
+def raw_file_to_image(file, shifts = [0], normalize_brightness = 1.0, color_map_name = 'orange-enhanced', verbose = 0):
     """
     raw_file_to_image 从ser文件重建图像，返回色彩映射后的重建图像，np.array(uint8)
     raw_file_to_image reconstruct image from raw video (ser file), return the reconstructed, normalized, color mapped image, np.array(uint8)
@@ -64,7 +65,7 @@ def raw_file_to_image(file, shifts = [0], color_map_name = 'orange-enhanced', ve
     :return: reconstructed, normalized, color mapped image, np.array(uint8)
     """ 
     imgs = raw_file_to_raw_image(file, shifts, verbose)
-    imgs = [normalize(img).astype(int) for img in imgs]
+    imgs = [normalize(img, brightness=normalize_brightness, verbose=verbose).astype(int) for img in imgs]
     imgs = [color_map(img, color_map_name) for img in imgs]
     return imgs
 
@@ -104,9 +105,9 @@ def raw_file_to_raw_image(file, shifts = [0], verbose = 0, return_details = Fals
         plt.show()
     
     # 椭圆拟合
-    edge_points, _ = detect_edge_points(reader, fit)
+    edge_points, raw_lines = detect_edge_points(reader, fit, verbose=verbose)
     edge_points = filter_out_invalid_points(edge_points, 10)
-    ellipse = fit_ellipse(edge_points, verbose=verbose)
+    ellipse = fit_ellipse(edge_points, raw_lines, verbose=verbose)
 
     ret = []
     sz = imgs.shape[1]
