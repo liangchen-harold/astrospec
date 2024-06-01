@@ -14,7 +14,7 @@ def files_to_mp4(folder, output_folder, frame_rate=30):
         ffmpeg -framerate {frame_rate} -pattern_type glob -i '{folder}/*.png' -c:v libx264 -pix_fmt yuv420p '{output_folder}/output.mp4' -y
     """)
 
-def process_folder(input_folder, output_folder, color_map_name, output_video, verbose, **kwargs):
+def process_folder(input_folder, output_folder, raw, correct_light, color_map_name, output_video, verbose, **kwargs):
     output_path = os.path.join(input_folder, output_folder)
     os.makedirs(output_path, exist_ok=True)
     for i, file in enumerate(tqdm(sorted(glob(os.path.join(input_folder, '*.SER'))), ncols=80)):
@@ -24,24 +24,26 @@ def process_folder(input_folder, output_folder, color_map_name, output_video, ve
             continue
         # print(i, file, file_out)
         try:
-            raw_file_to_file(file, file_out, color_map_name = color_map_name, verbose = verbose)
+            raw_file_to_file(file, file_out, raw = raw, correct_light = correct_light, color_map_name = color_map_name, verbose = verbose)
         except Exception as e:
             print(e)
     
     if output_video:
         files_to_mp4(output_path, os.path.dirname(output_path))
 
-def process_single_file(input_file, output_folder, color_map_name, verbose, **kwargs):
+def process_single_file(input_file, output_folder, raw, correct_light, color_map_name, verbose, **kwargs):
     output_path = os.path.join(os.path.dirname(input_file), output_folder)
     os.makedirs(output_path, exist_ok=True)
     file_out = os.path.join(output_path, Path(input_file).stem + '.png')
-    raw_file_to_file(input_file, file_out, color_map_name = color_map_name, verbose = verbose)
+    raw_file_to_file(input_file, file_out, raw = raw, correct_light = correct_light, color_map_name = color_map_name, verbose = verbose)
 
 def main():
     parser = argparse.ArgumentParser(description='astronomy spectroheliograph reconstruct tool')
     parser.add_argument('-i', '--input_file', help='Path to the input raw video file(.SER file)', default=None)
     parser.add_argument('-f', '--input_folder', help='Folder of the input raw video file(.SER file)', default=None)
     parser.add_argument('-o', '--output_folder', help='Output folder(relative to the input file)', default='output/img')
+    parser.add_argument('--raw', help='16-bit raw output, without normalizing and color mapping', action='store_true', default=False)
+    parser.add_argument('-cr', '--correct_light', help='Correct stray light', type=int, default=1)
     parser.add_argument('-ov', '--output_video', help='Whether to generate video', action='store_true', default=False)
     parser.add_argument('-c', '--color_map_name', help='Color map', default='orange-enhanced')
     parser.add_argument('-v', '--verbose', help='verbose', type=int, default=0)
