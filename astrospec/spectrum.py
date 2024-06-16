@@ -26,8 +26,10 @@ def reduce_mean(reader):
     return (imgs / n).astype('uint16')
 
 def find_edge(curve, verbose=0):
-    expend = 0.1
-    thd = np.quantile(curve, 0.9) * 0.2
+    expend = 0
+    vh = np.quantile(curve, 0.99)
+    vl = np.quantile(curve, 0.1)
+    thd = (vh - vl) * 0.1 + vl
     x0 = np.argmax(curve > thd)
     x1 = len(curve) - np.argmax((curve > thd)[::-1])
     e = int((x1-x0)*expend)
