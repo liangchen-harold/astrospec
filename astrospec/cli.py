@@ -18,7 +18,7 @@ def files_to_mp4(folder, output_folder, frame_rate=30):
 def process_folder(input_folder, output_folder, raw, correct_light_axis, normalize_brightness, color_map_name, output_video, verbose, **kwargs):
     output_path = os.path.join(input_folder, output_folder)
     os.makedirs(output_path, exist_ok=True)
-    for i, file in enumerate(tqdm(sorted(glob(os.path.join(input_folder, '*.SER'))), ncols=80)):
+    for i, file in enumerate(tqdm(sorted(glob(os.path.join(input_folder, '*.[sS][eE][rR]'))), ncols=80)):
         file_out = os.path.join(output_path, Path(file).stem + '.png')
         if os.path.isfile(file_out):
             print(f'skipped: {file}, output file exists')

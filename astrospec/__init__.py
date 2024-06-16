@@ -16,7 +16,10 @@ from .postproc import normalize, color_map
 from .utils import print
 import cv2
 import numpy as np
-import matplotlib.pyplot as plt
+try:
+    import matplotlib.pyplot as plt
+except:
+    pass
 from einops import rearrange, reduce, repeat
 
 def raw_file_to_file(file, output_file, raw = False, shifts = [0], correct_light_axis = 2, normalize_brightness = 1.0, color_map_name = 'orange-enhanced', verbose = 0):

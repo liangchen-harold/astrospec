@@ -3,7 +3,10 @@
 """
 
 import numpy as np
-import matplotlib.pyplot as plt
+try:
+    import matplotlib.pyplot as plt
+except:
+    pass
 from .utils import print
 
 color_maps = {

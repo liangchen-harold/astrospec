@@ -10,7 +10,10 @@ references:
 import cv2
 import math
 import numpy as np
-import matplotlib.pyplot as plt
+try:
+    import matplotlib.pyplot as plt
+except:
+    pass
 from numpy.polynomial.polynomial import polyval
 from .utils import print
 

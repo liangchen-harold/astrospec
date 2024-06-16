@@ -7,7 +7,10 @@ import math
 from einops import rearrange, reduce, repeat
 import numpy as np
 from numpy.polynomial.polynomial import polyval
-import matplotlib.pyplot as plt
+try:
+    import matplotlib.pyplot as plt
+except:
+    pass
 from .utils import print
 
 def find_center(arr):

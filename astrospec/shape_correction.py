@@ -4,59 +4,15 @@
 
 import cv2
 import numpy as np
-import matplotlib.pyplot as plt
+try:
+    import matplotlib.pyplot as plt
+    from matplotlib.patches import Ellipse
+except:
+    pass
 from einops import rearrange, reduce, repeat
 from ellipse import LsqEllipse
-from matplotlib.patches import Ellipse
-import scipy
 from .spectrum import reduce_mean, fit_line_with_poly, frame_to_line, reconstruct
 from .utils import print
-
-def fit_errors(ellipse, edge_points, verbose = 0):
-    center, width, height, phi = ellipse
-    phi = phi * np.pi / 180
-
-    points = []
-    for x, ys in enumerate(edge_points):
-        for y in ys:
-            if not np.isnan(y):
-                points.append([x, y])
-    points = np.array(points)
-
-    cx, cy = center
-    print(cx, cy)
-    # for x, y in points:
-    #     print(x, y)
-    t = np.arctan2(points[:,1] - cy, points[:,0] - cx) - phi - 0.05
-    print(t.shape)
-
-    n_points = points.shape[0]
-    t = np.linspace(0, 2*np.pi, n_points)
-    x = (center[0] + width * np.cos(t) * np.cos(phi) - height * np.sin(t) * np.sin(phi))
-    y = (center[1] + width * np.cos(t) * np.sin(phi) + height * np.sin(t) * np.cos(phi))
-
-    # 偏离距离
-    dist = scipy.spatial.distance.cdist(np.array([x, y]).T, points)
-    dist = np.min(dist, axis=0)
-    # print(f'mean(dist)={np.mean(dist)}, quantile(dist, 0.9)={np.quantile(dist, 0.9)}, first={dist[0]}')
-
-    if verbose > 1:
-        plt.hist(dist, bins=200)
-        plt.show()
-
-    if verbose > 2:
-        plt.figure(figsize=(16,10))
-        plt.scatter(points[:,0], points[:,1], s=1, c='orange')
-        plt.scatter(x, y, s=1, alpha=0.2)
-
-        plt.scatter(points[0,0], points[0,1], s=9, c='red')
-        plt.scatter(x[0], y[0], s=9, color='g')
-        plt.scatter(points[80,0], points[80,1], s=9, c='red')
-        plt.scatter(x[80], y[80], s=9, color='g')
-
-        plt.show()
-
-    return dist
 
 def cross_points(arr, thd):
     # TODO: 施密特触发
