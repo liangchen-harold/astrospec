@@ -46,14 +46,14 @@ def raw_file_to_file(file, output_file, raw = False, shifts = [0], correct_light
         if verbose > 1:
             print(f'write to {_file} (i={i}, shift={shifts[i]})')
         if raw:
-            cv2.imwrite(_file, np.clip(img, 0, 65535).astype(np.uint16))
+            cv2.imencode(f'.{_file.split(".")[-1]}', np.clip(img, 0, 65535).astype(np.uint16))[1].tofile(_file)
         else:
             img = normalize(img, brightness=normalize_brightness, verbose=verbose).astype(int)
             img = color_map(img, color_map_name)
             if len(img.shape) == 3:
                 img = img[:,:,::-1]
 
-            cv2.imwrite(_file, img)
+            cv2.imencode(f'.{_file.split(".")[-1]}', _img)[1].tofile(_file)
 
 def raw_file_to_image(file, shifts = [0], correct_light_axis = 2, normalize_brightness = 1.0, color_map_name = 'orange-enhanced', verbose = 0):
     """
