@@ -25,6 +25,23 @@ def reduce_mean(reader):
         n += 1
     return (imgs / n).astype('uint16')
 
+def find_edge(curve, verbose=0):
+    expend = 0.1
+    thd = np.quantile(curve, 0.9) * 0.2
+    x0 = np.argmax(curve > thd)
+    x1 = len(curve) - np.argmax((curve > thd)[::-1])
+    e = int((x1-x0)*expend)
+    x0 = max(0, x0-e)
+    x1 = min(len(curve), x1+e)
+    if verbose > 1:
+        print(thd, x0, x1)
+        plt.plot(curve)
+        plt.plot(curve*(curve < thd))
+        plt.axvline(x = x0, c='r')
+        plt.axvline(x = x1, c='r')
+        plt.show()
+    return x0, x1
+
 # TODO: 自转导致的多普勒效应，会被拟合抹平，要单独拍一个天光进行曲线拟合
 def fit_line_with_poly(img, y1, y2, denoise=False, verbose = 0):
     ih, iw = img.shape

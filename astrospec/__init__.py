@@ -9,7 +9,7 @@
 # filename -> filename:       raw_file_to_file
 
 from .video_reader import video_reader
-from .spectrum import reduce_mean, fit_line_with_poly, frame_to_line, reconstruct
+from .spectrum import find_edge, reduce_mean, fit_line_with_poly, frame_to_line, reconstruct
 from .shape_correction import detect_edge_points, filter_out_invalid_points, fit_ellipse, warp_frame
 from .light_correction import correct_light
 from .postproc import normalize, color_map
@@ -96,9 +96,13 @@ def raw_file_to_raw_image(file, shifts = [0], correct_light_axis = 2, verbose = 
 
     # 全局平均帧
     img_mean = reduce_mean(reader)
-    y1, y2 = 0, reader.height
-    # plt.imshow(img_mean)
-    # plt.show()
+    curve = reduce(img_mean.astype(float), f'h w -> h', 'mean')
+    # y1, y2 = 0, reader.height
+    y1, y2 = find_edge(curve, verbose = verbose)
+
+    if verbose > 0:
+        plt.plot(curve)
+        plt.show()
 
     # 谱线位置拟合
     fit = fit_line_with_poly(img_mean, y1, y2, verbose = verbose)
