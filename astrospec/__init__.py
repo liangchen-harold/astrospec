@@ -117,8 +117,13 @@ def raw_file_to_raw_image(file, shifts = [0], correct_light_axis = 2, verbose = 
     
     # 椭圆拟合
     edge_points, raw_lines = detect_edge_points(reader, fit, verbose=verbose)
-    edge_points = filter_out_invalid_points(edge_points, 10)
-    ellipse = fit_ellipse(edge_points, raw_lines, verbose=verbose)
+    edge_points = filter_out_invalid_points(edge_points, 8)
+    ellipse = None
+    try:
+        ellipse = fit_ellipse(edge_points, raw_lines, verbose=verbose)
+    except:
+        import traceback
+        print(f'{traceback.format_exc()}')
 
     ret = []
     sz = imgs.shape[1]
@@ -136,7 +141,8 @@ def raw_file_to_raw_image(file, shifts = [0], correct_light_axis = 2, verbose = 
         img = cv2.resize(img, shape[::-1])
 
         # 图像变换
-        img = warp_frame(ellipse, img, sz)
+        if ellipse is not None:
+            img = warp_frame(ellipse, img, sz)
         
         # 杂散光矫正
         if correct_light_axis > 0:

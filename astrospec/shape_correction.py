@@ -66,6 +66,7 @@ def filter_out_invalid_points(x, thd):
     # print(x.shape)
     invalid = np.zeros((x.shape[0]), dtype=bool)
     for i in range(x.shape[1]):
+        # y值应该是连续变化的，滤除突变的点
         ma = np.convolve(x[:, i], np.ones(3)/3, mode='same')
         invalid |= abs(x[:,i] - ma) > thd
 
@@ -77,13 +78,22 @@ def filter_out_invalid_points(x, thd):
 
 def fit_ellipse(edge_points, raw_lines, verbose=0):
     points = []
+    w, h = raw_lines.shape
     for x, ys in enumerate(edge_points):
         for y in ys:
-            if not np.isnan(y):
+            if not np.isnan(y) and y > h*0.05 and y < h * 0.95:
                 points.append([x, y])
     points = np.array(points)
 
-    reg = LsqEllipse().fit(points)
+    try:
+        reg = LsqEllipse().fit(points)
+    except Exception as e:
+        ax = plt.subplot()
+        ax.imshow(raw_lines.T)
+        ax.scatter(points[:,0], points[:,1], marker='x', c='r')
+        plt.show()
+        raise e
+    
     center, width, height, phi = reg.as_parameters()
     phi = np.rad2deg(phi)
 
